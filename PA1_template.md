@@ -1,9 +1,4 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 ##Introduction
 It is now possible to collect a large amount of data about personal movement using activity monitoring devices such as a Fitbit, Nike Fuelband, or Jawbone Up. These type of devices are part of the "quantified self" movement - a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. But these data remain under-utilized both because the raw data are hard to obtain and there is a lack of statistical methods and software for processing and interpreting the data.
@@ -28,7 +23,8 @@ The dataset is stored in a comma-separated-value (CSV) file and contains a total
 
 Assume that "activity.csv" file is inside the "activity" folder. Process the .csv file using the read.csv function and format the date.
 
-```{r, echo=TRUE}
+
+```r
 #read the activity data
 activitydata <- read.csv("./activity/activity.csv")
 #convert the date data from factor to date format
@@ -41,16 +37,20 @@ Compute the steps taken per day (ignore the NA values).
 
 1. Plot Histogram of the total number of steps taken each day
 
-```{r, echo=TRUE}
+
+```r
 #compute the sum of steps taken per day (based on date)
 dailysteps <- aggregate(steps ~ date, data = activitydata, FUN = sum, na.rm = TRUE)
 #plot the histogram with 20 cells
 hist(dailysteps$steps, main= "Histogram of Total steps by day", xlab = "Total steps by day", col = "red", breaks = 20)
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
+
 2. Compute Mean and median number of steps taken each day
 
-```{r, echo=TRUE}
+
+```r
 #mean and median of daily steps
 meansteps <- mean(dailysteps$steps, na.rm = TRUE)
 mediansteps <- median(dailysteps$steps, na.rm = TRUE)
@@ -59,9 +59,18 @@ mediansteps <- median(dailysteps$steps, na.rm = TRUE)
 print(meansteps)
 ```
 
-```{r, echo=TRUE}
+```
+## [1] 10766.19
+```
+
+
+```r
 #Print median
 print(mediansteps)
+```
+
+```
+## [1] 10765
 ```
 
 ## What is the average daily activity pattern?
@@ -70,20 +79,28 @@ print(mediansteps)
 
 Timeseries plot of steps vs interval 
 
-```{r, echo=TRUE}
+
+```r
 #get the average number of steps per interval
 avgsteps <- aggregate(steps ~ interval, data = activitydata, FUN = mean, na.rm=TRUE)
 #plot time series, steps vs interval
 plot(avgsteps$interval, avgsteps$steps, type="l", xlab="Interval", ylab="Steps",main="Average Daily Number of Steps by Interval")
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
+
 2.Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 
 Get the interval with maximum number of steps.
 
-```{r, echo=TRUE}
+
+```r
 #Get the interval with maximum number of steps.
 avgsteps[which.max(avgsteps$steps), 1]
+```
+
+```
+## [1] 835
 ```
 
 ## Imputing missing values
@@ -92,7 +109,8 @@ avgsteps[which.max(avgsteps$steps), 1]
 
 Check for the missing values in the current dataset and get the number of days this sampling is done.
 
-```{r, echo=TRUE}
+
+```r
 #Check for the missing values in the current dataset
 missing <- is.na(activitydata$steps)
 
@@ -102,7 +120,8 @@ totaldays <- length(levels(as.factor(activitydata$date)))
 
 Fill the missing values with the avarage/mean value for that interval and assign to the new activity data variable
 
-```{r, echo=TRUE}
+
+```r
 #create the new variable matching the existing activity data
 imputedactivitydata <- activitydata
 
@@ -112,7 +131,8 @@ imputedactivitydata[missing,]$steps <- rep(avgsteps[,2], totaldays)[missing]
 
 2. Histogram of the total number of steps taken each day after missing values are imputed
 
-```{r, echo=TRUE}
+
+```r
 #compute the sum of steps taken per day (based on date)
 dailystepsimputed <- aggregate(steps ~ date, data = imputedactivitydata, FUN = sum)
 
@@ -120,16 +140,31 @@ dailystepsimputed <- aggregate(steps ~ date, data = imputedactivitydata, FUN = s
 hist(dailystepsimputed$steps, main= "Histogram of Total steps by day", xlab = "Total steps by day", col = "red", breaks = 20)
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
+
 Calculate the mean and median before and after imputing the missing values
 
-```{r, echo=TRUE}
+
+```r
 #mean and median of daily steps are filling missing values
 imputeddate_meansteps <- mean(dailystepsimputed$steps, na.rm = TRUE)
 mputeddate_mediansteps <- median(dailystepsimputed$steps, na.rm = TRUE)
 
 c("Mean Before" = meansteps, "Mean After" = imputeddate_meansteps)
+```
 
+```
+## Mean Before  Mean After 
+##    10766.19    10766.19
+```
+
+```r
 c("Median Before" = mediansteps, "Median After" = mputeddate_mediansteps)
+```
+
+```
+## Median Before  Median After 
+##      10765.00      10766.19
 ```
 
 ## Are there differences in activity patterns between weekdays and weekends?
@@ -138,7 +173,8 @@ Use weekdays() function to know the day of the week. Create new variable and ass
 
 Use ifelse to categorize "weekday" and "weekend"
 
-```{r, echo=TRUE}
+
+```r
 #Assign day of the week using weekdays function
 imputedactivitydata$day <- weekdays(imputedactivitydata$date)
 #Use ifelse to categorize "weekday" and "weekend"
@@ -151,12 +187,22 @@ imputedactivitydata$daytype <- as.factor(imputedactivitydata$daytype)
 
 Use ggplot to plot the differences of steps during weekdays and weekends
 
-```{r, echo=TRUE}
+
+```r
 library(ggplot2)
+```
+
+```
+## Warning: package 'ggplot2' was built under R version 3.4.1
+```
+
+```r
 #calculate the average steps based on daytype
 avgstepsimputed <- aggregate(steps ~ interval + daytype, data = imputedactivitydata, FUN = mean)
 
 #plot the differences in activity patterns between weekdays and weekends
 ggplot(data = avgstepsimputed, aes(avgstepsimputed$interval, avgstepsimputed$steps, type =daytype)) + facet_grid(daytype ~ .) + geom_line() + ggtitle("Weekday vs. Weekend (Avg. Steps)") + xlab("Interval") + ylab("Number of steps") + theme(plot.title = element_text(hjust = 0.5))
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-12-1.png)<!-- -->
 
